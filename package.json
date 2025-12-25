@@ -16,7 +16,8 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "build:dmg": "tauri build --bundles dmg",
-    "check": "tsc --noEmit && cd src-tauri && cargo check"
+    "check": "tsc --noEmit && cd src-tauri && cargo check",
+    "release": "bash scripts/release.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
