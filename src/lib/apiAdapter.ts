@@ -348,13 +348,16 @@ async function handleStreamingCommand<T>(command: string, params?: any): Promise
     ws.onerror = (error) => {
       console.error('WebSocket error:', error);
 
+      // Provide helpful error message
+      const errorMessage = 'WebSocket connection failed. If running in Tauri dev mode, ensure the web server is running on port 8080 (cargo run -- --web-mode) or fix the Claude binary installation.';
+
       // Dispatch claude-error event for connection errors
       const errorEvent = new CustomEvent('claude-error', {
-        detail: 'WebSocket connection failed'
+        detail: errorMessage
       });
       window.dispatchEvent(errorEvent);
 
-      reject(new Error('WebSocket connection failed'));
+      reject(new Error(errorMessage));
     };
 
     ws.onclose = (event) => {
