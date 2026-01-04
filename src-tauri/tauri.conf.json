@@ -84,7 +84,10 @@
         "bundleMediaFramework": true
       },
       "deb": {
-        "depends": ["libwebkit2gtk-4.1-0", "libgtk-3-0"]
+        "depends": [
+          "libwebkit2gtk-4.1-0",
+          "libgtk-3-0"
+        ]
       }
     },
     "macOS": {
@@ -95,9 +98,18 @@
       "providerShortName": null,
       "entitlements": "entitlements.plist",
       "dmg": {
-        "windowSize": { "width": 540, "height": 380 },
-        "appPosition": { "x": 140, "y": 200 },
-        "applicationFolderPosition": { "x": 400, "y": 200 }
+        "windowSize": {
+          "width": 540,
+          "height": 380
+        },
+        "appPosition": {
+          "x": 140,
+          "y": 200
+        },
+        "applicationFolderPosition": {
+          "x": 400,
+          "y": 200
+        }
       }
     },
     "windows": {
@@ -106,7 +118,7 @@
       "timestampUrl": "",
       "tsp": false,
       "wix": {
-        "language": "zh-CN"
+        "language": "en-US"
       }
     }
   }
