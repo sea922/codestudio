@@ -14,9 +14,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13  # Intel
-            target: x86_64-apple-darwin
-            arch: x86_64
+          # - os: macos-13  # Intel
+          #   target: x86_64-apple-darwin
+          #   arch: x86_64
           - os: macos-14  # Apple Silicon
             target: aarch64-apple-darwin
             arch: aarch64
