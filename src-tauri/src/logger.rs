@@ -28,8 +28,8 @@ impl Write for DualWriter {
 
 /// Initialize logger to write to both file and stderr
 /// Logs are written to a "logs" directory next to the executable:
-/// - Development: ./logs/opcode-YYYYMMDD.log (relative to current directory)
-/// - Production: <exe_dir>/logs/opcode-YYYYMMDD.log (next to the .exe file)
+/// - Development: ./logs/codestudio-YYYYMMDD.log (relative to current directory)
+/// - Production: <exe_dir>/logs/codestudio-YYYYMMDD.log (next to the .exe file)
 pub fn init_logger() {
     // Get log directory - prefer exe directory in production, current directory in dev
     let log_dir = if cfg!(debug_assertions) {
@@ -66,7 +66,7 @@ pub fn init_logger() {
 
     // Create log file path with timestamp
     let timestamp = chrono::Local::now().format("%Y%m%d");
-    let log_file = log_dir.join(format!("opcode-{}.log", timestamp));
+    let log_file = log_dir.join(format!("codestudio-{}.log", timestamp));
 
     // Open log file for appending
     let file = match OpenOptions::new()
@@ -99,10 +99,10 @@ pub fn init_logger() {
     if std::env::var("RUST_LOG").is_err() {
         builder.filter_level(log::LevelFilter::Warn); // Default for all modules
         // Set Info level for Claude-related modules to capture all important logs
-        builder.filter_module("opcode::commands::claude", log::LevelFilter::Info);
-        builder.filter_module("opcode::commands::agents", log::LevelFilter::Info);
-        builder.filter_module("opcode::claude_binary", log::LevelFilter::Info);
-        builder.filter_module("opcode::process", log::LevelFilter::Info);
+        builder.filter_module("codestudio::commands::claude", log::LevelFilter::Info);
+        builder.filter_module("codestudio::commands::agents", log::LevelFilter::Info);
+        builder.filter_module("codestudio::claude_binary", log::LevelFilter::Info);
+        builder.filter_module("codestudio::process", log::LevelFilter::Info);
     }
     
     builder
@@ -187,9 +187,9 @@ fn cleanup_old_logs(log_dir: &PathBuf) {
     for entry in entries.flatten() {
         let path = entry.path();
         if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("log") {
-            // Try to extract date from filename like "opcode-20240101.log"
+            // Try to extract date from filename like "codestudio-20240101.log"
             if let Some(file_name) = path.file_name().and_then(|n| n.to_str()) {
-                if let Some(date_str) = file_name.strip_prefix("opcode-").and_then(|s| s.strip_suffix(".log")) {
+                if let Some(date_str) = file_name.strip_prefix("codestudio-").and_then(|s| s.strip_suffix(".log")) {
                     if let Ok(file_date) = chrono::NaiveDate::parse_from_str(date_str, "%Y%m%d") {
                         if file_date < cutoff_date.date_naive() {
                             if let Err(e) = fs::remove_file(&path) {

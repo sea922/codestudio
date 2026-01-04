@@ -34,8 +34,11 @@ try {
 
 }
 
-// Web-compatible replacement
-const getCurrentWebviewWindow = tauriGetCurrentWebviewWindow || (() => ({ listen: () => Promise.resolve(() => {}) }));
+// Web-compatible replacement - must include all methods used by the component
+const getCurrentWebviewWindow = tauriGetCurrentWebviewWindow || (() => ({
+  listen: () => Promise.resolve(() => {}),
+  onDragDropEvent: () => Promise.resolve(() => {})
+}));
 
 interface FloatingPromptInputProps {
   /**

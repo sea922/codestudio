@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import opcodeLogo from "../../src-tauri/icons/icon.png";
+import codestudioLogo from "../../src-tauri/icons/icon.png";
 import type { CSSProperties } from "react";
 
 /**
@@ -50,7 +50,7 @@ export function StartupIntro({ visible }: { visible: boolean }) {
             className="relative flex flex-col items-center justify-center gap-1"
           >
 
-            {/* opcode logo slides left; brand text reveals to the right */}
+            {/* Logo slides left; brand text reveals to the right */}
             <div className="relative flex items-center justify-center">
               {/* Logo wrapper that gently slides left */}
               <motion.div
@@ -66,8 +66,8 @@ export function StartupIntro({ visible }: { visible: boolean }) {
                   transition={{ duration: 0.9, ease: "easeOut" }}
                 />
                 <motion.img
-                  src={opcodeLogo}
-                  alt="opcode"
+                  src={codestudioLogo}
+                  alt="CodeStudio"
                   className="h-20 w-20 rounded-lg shadow-sm"
                   transition={{ repeat: Infinity, repeatType: "loop", ease: "linear", duration: 0.5 }}
                 />

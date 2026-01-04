@@ -1,5 +1,5 @@
 /**
- * Unified logging utility for the Opcode frontend
+ * Unified logging utility for the CodeStudio frontend
  *
  * This module provides a centralized logging system that:
  * - Controls log output based on environment (dev/prod)

@@ -286,30 +286,41 @@ fn try_which_command() -> Option<ClaudeInstallation> {
                 return None;
             }
 
-            // On Windows, `where` can return multiple paths, newline-separated. We take the first one.
-            let path = output_str.lines().next().unwrap_or("").trim().to_string();
+            // On Windows, `where` can return multiple paths, newline-separated.
+            // Find the first one with a valid Windows executable extension (.exe, .cmd, .bat)
+            for line in output_str.lines() {
+                let path = line.trim().to_string();
+                if path.is_empty() {
+                    continue;
+                }
 
-            if path.is_empty() {
-                return None;
+                // Skip files without valid Windows executable extensions
+                let path_lower = path.to_lowercase();
+                if !path_lower.ends_with(".exe") && !path_lower.ends_with(".cmd") && !path_lower.ends_with(".bat") {
+                    debug!("Skipping non-Windows executable: {}", path);
+                    continue;
+                }
+
+                debug!("'where' found valid Windows executable: {}", path);
+
+                // Verify the path exists
+                if !PathBuf::from(&path).exists() {
+                    warn!("Path from 'where' does not exist: {}", path);
+                    continue;
+                }
+
+                // Get version
+                let version = get_claude_version(&path).ok().flatten();
+
+                return Some(ClaudeInstallation {
+                    path,
+                    version,
+                    source: "where".to_string(),
+                    installation_type: InstallationType::System,
+                });
             }
 
-            debug!("'where' found claude at: {}", path);
-
-            // Verify the path exists
-            if !PathBuf::from(&path).exists() {
-                warn!("Path from 'where' does not exist: {}", path);
-                return None;
-            }
-
-            // Get version
-            let version = get_claude_version(&path).ok().flatten();
-
-            Some(ClaudeInstallation {
-                path,
-                version,
-                source: "where".to_string(),
-                installation_type: InstallationType::System,
-            })
+            None
         }
         _ => None,
     }

@@ -384,8 +384,8 @@ const TabPanel: React.FC<TabPanelProps> = ({ tab, isActive }) => {
           return <div className="p-4">No CLAUDE.md file data specified</div>;
         }
         
-        // Extract project path: if absolute_path is "D:\Code\github\opcode\CLAUDE.md"
-        // then project path is "D:\Code\github\opcode"
+        // Extract project path: if absolute_path is "D:\Code\github\myproject\CLAUDE.md"
+        // then project path is "D:\Code\github\myproject"
         const getProjectPathFromFile = (file: any): string => {
           if (file.absolute_path) {
             const pathParts = file.absolute_path.split(/[/\\]/);

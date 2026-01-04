@@ -5,9 +5,9 @@
 
 import type { Tab } from '@/contexts/TabContext';
 
-const STORAGE_KEY = 'opcode_tabs_v2';
-const ACTIVE_TAB_KEY = 'opcode_active_tab_v2';
-const PERSISTENCE_ENABLED_KEY = 'opcode_tab_persistence_enabled';
+const STORAGE_KEY = 'codestudio_tabs_v2';
+const ACTIVE_TAB_KEY = 'codestudio_active_tab_v2';
+const PERSISTENCE_ENABLED_KEY = 'codestudio_tab_persistence_enabled';
 
 interface SerializedTab {
   id: string;
