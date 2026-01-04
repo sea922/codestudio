@@ -14,9 +14,6 @@ on:
 permissions:
   contents: write
 
-env:
-  APP_NAME: CodeStudio
-
 jobs:
   build-linux:
     uses: ./.github/workflows/build-linux.yml
@@ -33,6 +30,7 @@ jobs:
   create-release:
     name: Create Release
     needs: [build-linux, build-macos, build-windows]
+    if: always()
     runs-on: ubuntu-latest
 
     steps:
@@ -51,55 +49,55 @@ jobs:
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           path: artifacts
 
       - name: List artifacts
         run: |
-          echo "📁 Downloaded artifacts:"
-          ls -laR artifacts/
+          echo "Downloaded artifacts:"
+          ls -laR artifacts/ || echo "No artifacts found"
 
       - name: Prepare release assets
-        env:
-          APP_NAME: CodeStudio
         run: |
           mkdir -p release-assets
           VERSION="${{ steps.version.outputs.version }}"
+          APP="CodeStudio"
 
           # Linux artifacts
           if [ -d "artifacts/linux-x86_64" ]; then
             for f in artifacts/linux-x86_64/*.deb; do
-              [ -f "$f" ] && cp "$f" "release-assets/${APP_NAME}_${VERSION}_linux_x86_64.deb"
+              [ -f "$f" ] && cp "$f" "release-assets/${APP}_${VERSION}_linux_x86_64.deb"
             done
             for f in artifacts/linux-x86_64/*.AppImage; do
-              [ -f "$f" ] && cp "$f" "release-assets/${APP_NAME}_${VERSION}_linux_x86_64.AppImage"
+              [ -f "$f" ] && cp "$f" "release-assets/${APP}_${VERSION}_linux_x86_64.AppImage"
             done
           fi
 
           # macOS artifacts
           if [ -d "artifacts/macos-universal" ]; then
             for f in artifacts/macos-universal/*.dmg; do
-              [ -f "$f" ] && cp "$f" "release-assets/${APP_NAME}_${VERSION}_macos_universal.dmg"
+              [ -f "$f" ] && cp "$f" "release-assets/${APP}_${VERSION}_macos_universal.dmg"
             done
             for f in artifacts/macos-universal/*.zip; do
-              [ -f "$f" ] && cp "$f" "release-assets/${APP_NAME}_${VERSION}_macos_universal.app.zip"
+              [ -f "$f" ] && cp "$f" "release-assets/${APP}_${VERSION}_macos_universal.app.zip"
             done
           fi
 
           # Windows artifacts
           if [ -d "artifacts/windows-x86_64" ]; then
             for f in artifacts/windows-x86_64/*.msi; do
-              [ -f "$f" ] && cp "$f" "release-assets/${APP_NAME}_${VERSION}_windows_x86_64.msi"
+              [ -f "$f" ] && cp "$f" "release-assets/${APP}_${VERSION}_windows_x86_64.msi"
             done
             for f in artifacts/windows-x86_64/*.exe; do
-              [ -f "$f" ] && cp "$f" "release-assets/${APP_NAME}_${VERSION}_windows_x86_64.exe"
+              [ -f "$f" ] && cp "$f" "release-assets/${APP}_${VERSION}_windows_x86_64.exe"
             done
           fi
 
           # Create source code archives
           CLEAN_VERSION="${VERSION#v}"
-          git archive --format=tar.gz --prefix=${APP_NAME}-${CLEAN_VERSION}/ -o "release-assets/${APP_NAME}-${CLEAN_VERSION}.tar.gz" HEAD
-          git archive --format=zip --prefix=${APP_NAME}-${CLEAN_VERSION}/ -o "release-assets/${APP_NAME}-${CLEAN_VERSION}.zip" HEAD
+          git archive --format=tar.gz --prefix=${APP}-${CLEAN_VERSION}/ -o "release-assets/${APP}-${CLEAN_VERSION}.tar.gz" HEAD
+          git archive --format=zip --prefix=${APP}-${CLEAN_VERSION}/ -o "release-assets/${APP}-${CLEAN_VERSION}.zip" HEAD
 
           # Generate SHA256 checksums
           cd release-assets
@@ -110,18 +108,17 @@ jobs:
           done
           cd ..
 
-          echo "📦 Release assets:"
+          echo "Release assets:"
           ls -la release-assets/
 
       - name: Generate release body
-        id: body
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           REPO="${{ github.repository }}"
           APP="CodeStudio"
           BASE_URL="https://github.com/${REPO}/releases/download/${VERSION}"
 
-          cat << EOF > release_body.md
+          cat > release_body.md << EOF
           ## ${APP} ${VERSION}
 
           ### Downloads
