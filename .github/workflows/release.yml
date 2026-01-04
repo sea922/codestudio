@@ -113,35 +113,46 @@ jobs:
           echo "📦 Release assets:"
           ls -la release-assets/
 
+      - name: Generate release body
+        id: body
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          REPO="${{ github.repository }}"
+          APP="CodeStudio"
+          BASE_URL="https://github.com/${REPO}/releases/download/${VERSION}"
+
+          cat << EOF > release_body.md
+          ## ${APP} ${VERSION}
+
+          ### Downloads
+
+          | Platform | Installer | Portable |
+          |----------|-----------|----------|
+          | **Windows** | [MSI Installer](${BASE_URL}/${APP}_${VERSION}_windows_x86_64.msi) | [EXE Portable](${BASE_URL}/${APP}_${VERSION}_windows_x86_64.exe) |
+          | **macOS** | [DMG Installer](${BASE_URL}/${APP}_${VERSION}_macos_universal.dmg) | [App Bundle](${BASE_URL}/${APP}_${VERSION}_macos_universal.app.zip) |
+          | **Linux** | [DEB Package](${BASE_URL}/${APP}_${VERSION}_linux_x86_64.deb) | [AppImage](${BASE_URL}/${APP}_${VERSION}_linux_x86_64.AppImage) |
+
+          ### Installation
+
+          - **Windows**: Run the \`.msi\` installer or use the portable \`.exe\` file.
+          - **macOS**: Open the \`.dmg\` and drag ${APP} to Applications.
+          - **Linux**: \`chmod +x\` the \`.AppImage\` and run it, or install the \`.deb\` on Debian/Ubuntu.
+
+          ### Checksums
+
+          SHA256 checksums (\`.sha256\`) are provided for all assets.
+          EOF
+
+          echo "Generated release body:"
+          cat release_body.md
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-          REPO: ${{ github.repository }}
         with:
           tag_name: ${{ steps.version.outputs.version }}
-          name: ${{ env.APP_NAME }} ${{ steps.version.outputs.version }}
+          name: CodeStudio ${{ steps.version.outputs.version }}
           draft: false
           prerelease: false
           generate_release_notes: true
           files: release-assets/*
-          body: |
-            ## ${{ env.APP_NAME }} ${{ steps.version.outputs.version }}
-
-            ### Downloads
-
-            | Platform | Installer | Portable |
-            |----------|-----------|----------|
-            | **Windows** | [MSI Installer](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/${{ env.APP_NAME }}_${{ steps.version.outputs.version }}_windows_x86_64.msi) | [EXE Portable](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/${{ env.APP_NAME }}_${{ steps.version.outputs.version }}_windows_x86_64.exe) |
-            | **macOS** | [DMG Installer](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/${{ env.APP_NAME }}_${{ steps.version.outputs.version }}_macos_universal.dmg) | [App Bundle](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/${{ env.APP_NAME }}_${{ steps.version.outputs.version }}_macos_universal.app.zip) |
-            | **Linux** | [DEB Package](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/${{ env.APP_NAME }}_${{ steps.version.outputs.version }}_linux_x86_64.deb) | [AppImage](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/${{ env.APP_NAME }}_${{ steps.version.outputs.version }}_linux_x86_64.AppImage) |
-
-            ### Installation
-
-            - **Windows**: Run the `.msi` installer or use the portable `.exe` file.
-            - **macOS**: Open the `.dmg` and drag ${{ env.APP_NAME }} to Applications.
-            - **Linux**: `chmod +x` the `.AppImage` and run it, or install the `.deb` on Debian/Ubuntu.
-
-            ### Checksums
-
-            SHA256 checksums (`.sha256`) are provided for all assets.
+          body_path: release_body.md
