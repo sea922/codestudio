@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import asteriskLogo from "@/assets/nfo/asterisk-logo.png";
-import keygennMusic from "@/assets/nfo/opcode-nfo.ogg";
+import keygennMusic from "@/assets/nfo/codestudio-nfo.ogg";
 
 interface NFOCreditsProps {
   /**
@@ -85,7 +85,7 @@ export const NFOCredits: React.FC<NFOCreditsProps> = ({ onClose }) => {
   
   // Credits content
   const creditsContent = [
-    { type: "header", text: "opcode v0.2.1" },
+    { type: "header", text: "CodeStudio v0.2.1" },
     { type: "subheader", text: "[ A STRATEGIC PROJECT BY ASTERISK ]" },
     { type: "spacer" },
     { type: "section", title: "━━━ CREDITS ━━━" },
@@ -148,7 +148,7 @@ export const NFOCredits: React.FC<NFOCreditsProps> = ({ onClose }) => {
             <div className="flex items-center justify-between px-4 py-2 bg-card border-b border-border">
               <div className="flex items-center space-x-2">
                 <div className="text-sm font-bold tracking-wider font-mono text-foreground">
-                  opcode.NFO
+                  CodeStudio.NFO
                 </div>
               </div>
               <div className="flex items-center space-x-2">
@@ -157,7 +157,7 @@ export const NFOCredits: React.FC<NFOCreditsProps> = ({ onClose }) => {
                   size="sm"
                   onClick={async (e) => {
                     e.stopPropagation();
-                    await openUrl("https://github.com/getAsterisk/opcode/issues/new");
+                    await openUrl("https://github.com/sea922/codestudio/issues/new");
                   }}
                   className="flex items-center gap-1 h-auto px-2 py-1"
                   title="File a bug"
@@ -208,7 +208,7 @@ export const NFOCredits: React.FC<NFOCreditsProps> = ({ onClose }) => {
                   />
                 </button>
                 <div className="text-muted-foreground text-sm font-mono mt-2 tracking-wider">
-                  ZTE: Magic Modified <a href="https://github.com/winfunc/opcode" target="_blank" rel="noopener noreferrer">Opcode</a> by GuFeiyang 10347281 RAN3 <br />
+                  ZTE: Magic Modified <a href="https://github.com/sea922/codestudio" target="_blank" rel="noopener noreferrer">CodeStudio</a> by GuFeiyang 10347281 RAN3 <br />
                   Community: A strategic project by Asterisk
                 </div>
               </div>

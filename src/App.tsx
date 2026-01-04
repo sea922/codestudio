@@ -247,7 +247,7 @@ function AppContent() {
               >
                 <h1 className="text-4xl font-bold tracking-tight">
                   <span className="rotating-symbol"></span>
-                  Welcome to opcode
+                  Welcome to CodeStudio
                 </h1>
               </motion.div>
 
