@@ -115,25 +115,26 @@ jobs:
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          REPO: ${{ github.repository }}
         with:
           tag_name: ${{ steps.version.outputs.version }}
           name: ${{ env.APP_NAME }} ${{ steps.version.outputs.version }}
-          draft: true
+          draft: false
           prerelease: false
           generate_release_notes: true
           files: release-assets/*
           body: |
             ## ${{ env.APP_NAME }} ${{ steps.version.outputs.version }}
 
-            This release was built by CI. Artifacts for Windows, macOS, and Linux are attached below.
-
             ### Downloads
 
             | Platform | Installer | Portable |
             |----------|-----------|----------|
-            | **Windows** | `.msi` | `.exe` |
-            | **macOS** | `.dmg` | `.app.zip` |
-            | **Linux** | `.deb` | `.AppImage` |
+            | **Windows** | [MSI Installer](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/${{ env.APP_NAME }}_${{ steps.version.outputs.version }}_windows_x86_64.msi) | [EXE Portable](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/${{ env.APP_NAME }}_${{ steps.version.outputs.version }}_windows_x86_64.exe) |
+            | **macOS** | [DMG Installer](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/${{ env.APP_NAME }}_${{ steps.version.outputs.version }}_macos_universal.dmg) | [App Bundle](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/${{ env.APP_NAME }}_${{ steps.version.outputs.version }}_macos_universal.app.zip) |
+            | **Linux** | [DEB Package](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/${{ env.APP_NAME }}_${{ steps.version.outputs.version }}_linux_x86_64.deb) | [AppImage](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/${{ env.APP_NAME }}_${{ steps.version.outputs.version }}_linux_x86_64.AppImage) |
 
             ### Installation
 
