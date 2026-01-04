@@ -3,8 +3,6 @@ name: Build macOS
 on:
   workflow_call:
   workflow_dispatch:
-  push:
-    branches: [main]
 
 env:
   APP_NAME: CodeStudio
