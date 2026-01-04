@@ -786,6 +786,16 @@ pub async fn execute_agent(
     .await
 }
 
+/// Quote a string for Windows cmd.exe if it contains spaces
+#[cfg(target_os = "windows")]
+fn quote_for_cmd(s: &str) -> String {
+    if s.contains(' ') || s.contains('&') || s.contains('|') || s.contains('<') || s.contains('>') {
+        format!("\"{}\"", s)
+    } else {
+        s.to_string()
+    }
+}
+
 /// Creates a system binary command for agent execution
 fn create_agent_system_command(
     claude_path: &str,
@@ -800,8 +810,24 @@ fn create_agent_system_command(
             let mut cmd = create_command_with_env("cmd.exe");
             cmd.arg("/Q"); // Quiet mode - don't echo commands
             cmd.arg("/C"); // Execute command and terminate
-            cmd.arg(claude_path);
-            cmd
+
+            // Build full command string with proper quoting for paths with spaces
+            let mut full_command = quote_for_cmd(claude_path);
+            for arg in &args {
+                full_command.push(' ');
+                full_command.push_str(&quote_for_cmd(&arg));
+            }
+            info!("Windows cmd.exe full command: {}", full_command);
+            cmd.arg(&full_command);
+
+            cmd.current_dir(project_path)
+                .stdin(Stdio::null())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped());
+            cmd.creation_flags(0x08000000);
+
+            info!("Agent command working directory: {}", project_path);
+            return cmd;
         } else {
             create_command_with_env(claude_path)
         }
@@ -810,7 +836,7 @@ fn create_agent_system_command(
     #[cfg(not(target_os = "windows"))]
     let mut cmd = create_command_with_env(claude_path);
 
-    // Add all arguments
+    // Add all arguments (for non-cmd.exe case)
     info!("Agent command arguments: {:?}", args);
     for arg in &args {
         cmd.arg(arg);
@@ -820,7 +846,7 @@ fn create_agent_system_command(
         .stdin(Stdio::null())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
-    
+
     // On Windows, ensure CREATE_NO_WINDOW flag is set to prevent opening cmd window
     #[cfg(target_os = "windows")]
     {

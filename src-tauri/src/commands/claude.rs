@@ -470,16 +470,40 @@ fn create_command_with_env(program: &str) -> Command {
 
 /// Creates a system binary command with the given arguments
 fn create_system_command(claude_path: &str, args: Vec<String>, project_path: &str) -> Command {
-    // On Windows, if the claude path is a .cmd or .bat file, we need to execute it through cmd.exe
+    log::info!("Creating command for: {}", claude_path);
+    log::info!("Arguments: {:?}", args);
+
+    // On Windows, .cmd/.bat files need special handling via cmd.exe /S /C
     #[cfg(target_os = "windows")]
     let mut cmd = {
-        if claude_path.ends_with(".cmd") || claude_path.ends_with(".bat") {
-            log::info!("Windows: Executing .cmd/.bat file through cmd.exe: {}", claude_path);
+        if claude_path.to_lowercase().ends_with(".cmd") || claude_path.to_lowercase().ends_with(".bat") {
+            log::info!("Windows: Executing batch file through cmd.exe: {}", claude_path);
+
+            // Build the full command line manually for cmd.exe /S /C "..."
+            // /S strips outer quotes, /C runs command
+            let mut command_line = format!("\"{}\"", claude_path);
+            for arg in &args {
+                // Quote arguments that contain spaces
+                if arg.contains(' ') {
+                    command_line.push_str(&format!(" \"{}\"", arg));
+                } else {
+                    command_line.push_str(&format!(" {}", arg));
+                }
+            }
+            log::info!("Windows cmd.exe command line: {}", command_line);
+
             let mut cmd = create_command_with_env("cmd.exe");
-            cmd.arg("/Q"); // Quiet mode - don't echo commands
-            cmd.arg("/C"); // Execute command and terminate
-            cmd.arg(claude_path);
-            cmd
+            cmd.arg("/S");  // Strip outer quotes
+            cmd.arg("/C");  // Run command and exit
+            cmd.raw_arg(format!("\"{}\"", command_line)); // Wrap entire command in quotes
+
+            cmd.current_dir(project_path)
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped());
+            cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
+
+            log::info!("Claude command working directory: {}", project_path);
+            return cmd;
         } else {
             create_command_with_env(claude_path)
         }
@@ -489,7 +513,6 @@ fn create_system_command(claude_path: &str, args: Vec<String>, project_path: &st
     let mut cmd = create_command_with_env(claude_path);
 
     // Add all arguments
-    log::info!("Claude command arguments: {:?}", args);
     for arg in &args {
         cmd.arg(arg);
     }
@@ -497,11 +520,10 @@ fn create_system_command(claude_path: &str, args: Vec<String>, project_path: &st
     cmd.current_dir(project_path)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
-    
-    // On Windows, ensure CREATE_NO_WINDOW flag is set to prevent opening cmd window
+
+    // On Windows, ensure CREATE_NO_WINDOW flag is set
     #[cfg(target_os = "windows")]
     {
-        // CREATE_NO_WINDOW = 0x08000000
         cmd.creation_flags(0x08000000);
     }
 
