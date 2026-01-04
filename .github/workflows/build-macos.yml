@@ -37,6 +37,19 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
+      - name: Install ImageMagick
+        run: brew install imagemagick
+
+      - name: Convert icons to RGBA
+        run: |
+          cd src-tauri/icons
+          for png in *.png; do
+            if [ -f "$png" ]; then
+              convert "$png" -define png:color-type=6 "temp_$png"
+              mv "temp_$png" "$png"
+            fi
+          done
+
       - name: Install dependencies
         run: bun install
 
